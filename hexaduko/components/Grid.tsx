@@ -1,21 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
-import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { generateSudoku } from "../scripts/backtracking";
 
 const GRID_SIZE = 16;
 const SUBGRID_SIZE = 4;
-const { width } = Dimensions.get("window");
-const CELL_SIZE = Math.floor((width - 40) / GRID_SIZE); // Adjust padding as needed
+const { width, height } = Dimensions.get("window");
 
-// Create an empty 16x16 grid for demonstration
-const initialGrid = Array(GRID_SIZE)
-  .fill(null)
-  .map(() => Array(GRID_SIZE).fill(null));
+// Calculate the maximum size for the grid to fit on the screen
+const availableWidth = width - 40; // Adjust padding as needed
+const availableHeight = height - 40; // Adjust padding as needed
+const gridSize = Math.min(availableWidth, availableHeight);
+
+const CELL_SIZE = Math.floor(gridSize / GRID_SIZE);
 
 const SudokuGrid = () => {
+  const [grid, setGrid] = useState<number[][]>([]);
+
+  useEffect(() => {
+    const { puzzleBoard } = generateSudoku(160); // medium difficulty
+    setGrid(puzzleBoard);
+  }, []);
+
   const renderGrid = () => {
-    return initialGrid.map((row, rowIndex) => (
+    return grid.map((row, rowIndex) => (
       <View key={`row-${rowIndex}`} style={styles.row}>
         {row.map((cell, colIndex) => {
           const cellStyle = [
@@ -28,9 +36,12 @@ const SudokuGrid = () => {
             },
           ];
 
+          const displayValue =
+            cell === 0 || cell === null ? "" : cell.toString();
+
           return (
             <ThemedView key={`cell-${rowIndex}-${colIndex}`} style={cellStyle}>
-              <Text style={styles.cellText}>{cell}</Text>
+              <Text style={styles.cellText}>{displayValue}</Text>
             </ThemedView>
           );
         })}
@@ -40,14 +51,15 @@ const SudokuGrid = () => {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedView style={styles.grid}>{renderGrid()}</ThemedView>
+      <ThemedView style={styles.grid}>
+        {grid.length > 0 && renderGrid()}
+      </ThemedView>
     </ThemedView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#66B2FF",
