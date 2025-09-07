@@ -1,6 +1,5 @@
 import React from "react";
-import { Image } from "expo-image";
-import { TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, StyleSheet } from "react-native";
 
 // hint component - reveal a correct number from final solution
 type Board = (number | null)[][];
@@ -29,20 +28,43 @@ const Hint: React.FC<HintProps> = ({ board, solution, setBoard, disabled }) => {
 
     const randomCell =
       emptyCells[Math.floor(Math.random() * emptyCells.length)];
+
     const newBoard = board.map((row) => [...row]);
     newBoard[randomCell.row][randomCell.col] =
       solution[randomCell.row][randomCell.col];
+
+    setBoard(newBoard);
   };
 
   return (
-    <TouchableOpacity onPress={giveHint} disabled={disabled}>
-      <Image
-        source={require("../assets/images/lightbulb.jpeg")}
-        style={{ width: 40, height: 40 }}
-        contentFit="contain"
-      />
+    <TouchableOpacity
+      style={[styles.button, disabled && styles.disabledButton]}
+      onPress={giveHint}
+      disabled={disabled}
+    >
+      <Text style={styles.buttonText}>Get Hint</Text>
     </TouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: "#4da6ff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 15,
+    alignSelf: "center",
+  },
+  disabledButton: {
+    backgroundColor: "#b3d9ff",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
+  },
+});
 
 export default Hint;
